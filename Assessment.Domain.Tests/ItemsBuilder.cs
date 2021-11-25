@@ -18,5 +18,14 @@ namespace Assessment.Domain.Tests
 
             return items;
         }
+
+        public static List<Item> BuildValidItems()
+        {
+            var items = BuildItems(ItemType.Operational, Testlet.MaxOperationalItemsCount);
+            items.AddRange(BuildItems(ItemType.Pretest, Testlet.MaxPretestItemsCount));
+ 
+            return items;
+        }
+
     }
 }

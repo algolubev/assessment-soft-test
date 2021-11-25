@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Assessment.Domain.Utilities
+namespace Assessment.Domain.Utilities.GenericListExtension
 {
 
     // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
