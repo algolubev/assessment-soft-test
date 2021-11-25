@@ -5,7 +5,7 @@ namespace Assessment.Domain.Utilities.GenericListExtension
 {
 
     // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
-    static class RandomizationExtensions
+    public static class RandomizationExtensions
     {
         private static Random rng = new Random();
 

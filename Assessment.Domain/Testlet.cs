@@ -1,5 +1,4 @@
 ﻿using Assessment.Domain.Exceptions;
-using Assessment.Domain.Utilities;
 using Assessment.Domain.Utilities.GenericListExtension;
 using System;
 using System.Collections.Generic;
@@ -19,13 +18,9 @@ namespace Assessment.Domain
 
         public Testlet(string testletId, List<Item> items)
         {
-            if (testletId == null)
+            if (string.IsNullOrWhiteSpace(testletId))
             {
-                throw new ArgumentNullException("testletId");
-            }
-            if (testletId.Equals(string.Empty))
-            {
-                throw new ArgumentException("Cannot be empty.", "testletId");
+                throw new ArgumentException("Cannot be null or empty.", "testletId");
             }
             if (items == null)
             {
@@ -59,45 +54,23 @@ namespace Assessment.Domain
         {
             var randomizedItems = new List<Item>(items);
             randomizedItems.Shuffle();
-            ValidateItems(randomizedItems);
-            if (!CompareItemSets(randomizedItems))
-            {
-                throw new TestletOperationException("Broken item set during randomization.");
-            }
 
             var orderedItems = new List<Item>();
 
-            try
-            {
-                var twoFirstPretestItems = randomizedItems
-                    .Where(item => item.ItemType == ItemType.Pretest)
-                    .Take(MaxTopPretestItemsCount)
-                    .ToList();
+            var twoFirstPretestItems = randomizedItems
+                .Where(item => item.ItemType == ItemType.Pretest)
+                .Take(MaxTopPretestItemsCount)
+                .ToList();
 
-                orderedItems.AddRange(twoFirstPretestItems);
+            orderedItems.AddRange(twoFirstPretestItems);
 
-                var remainingItems = randomizedItems
-                    .Where(item => item.ItemId != twoFirstPretestItems[0].ItemId && item.ItemId != twoFirstPretestItems[1].ItemId)
-                    .ToList();
-                orderedItems.AddRange(remainingItems);
-
-            }
-            catch (Exception ex)
-            {
-                throw new TestletOperationException("Cannot order top items after randomization.", ex);
-            }
+            var remainingItems = randomizedItems
+                .Where(item => item.ItemId != twoFirstPretestItems[0].ItemId && item.ItemId != twoFirstPretestItems[1].ItemId)
+                .ToList();
+            orderedItems.AddRange(remainingItems);
 
             return orderedItems;
         }
 
-        public bool CompareItemSets(List<Item> items)
-        {
-            var areEqual = false;
-
-            var intersectedItemsCount = this.items.Intersect(items).Count();
-            areEqual = (intersectedItemsCount == MaxItemsCount);
-
-            return areEqual;
-        }
     }
 }

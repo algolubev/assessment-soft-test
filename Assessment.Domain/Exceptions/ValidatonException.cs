@@ -8,10 +8,6 @@ namespace Assessment.Domain.Exceptions
         {
         }
 
-        public TestletException(string? message, Exception? innerException) : base(message, innerException)
-        {
-        }
-
     }
 
     public class TestletValidationException : TestletException
@@ -21,15 +17,5 @@ namespace Assessment.Domain.Exceptions
         }
     }
 
-    public class TestletOperationException : TestletException
-    {
-        public TestletOperationException(string? message) : base(message)
-        {
-        }
-
-        public TestletOperationException(string? message, Exception? innerException): base(message, innerException)
-        {
-        }
-    }
 
 }

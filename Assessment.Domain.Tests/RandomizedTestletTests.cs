@@ -1,4 +1,5 @@
 using Assessment.Domain.Exceptions;
+using Assessment.Domain.Utilities.GenericListExtension;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,17 @@ namespace Assessment.Domain.Tests
 {
     public class RandomizedTestletTests
     {
+        private bool CompareItemSets(List<Item> leftItems, List<Item> rightItems)
+        {
+            var areEqual = false;
+            var maxItemsCount = Math.Max(leftItems.Count, rightItems.Count);
+            var intersectedItemsCount = leftItems.Intersect(rightItems).Count();
+            areEqual = (intersectedItemsCount == maxItemsCount);
+
+            return areEqual;
+        }
+
+
         [Trait("category", "defencive")]
         [Fact]
         public void Throws_argument_null_exception_on_missed_testlet_id()
@@ -17,10 +29,10 @@ namespace Assessment.Domain.Tests
             var items = new List<Item>();
             
             // act
-            var caughtException = Assert.Throws<ArgumentNullException>(() => new Testlet(testletId, items));
+            var caughtException = Assert.Throws<ArgumentException>(() => new Testlet(testletId, items));
             
             // assert
-            Assert.IsType<ArgumentNullException>(caughtException);
+            Assert.IsType<ArgumentException>(caughtException);
         }
 
         [Trait("category", "defencive")]
@@ -34,21 +46,6 @@ namespace Assessment.Domain.Tests
             // act
             var caughtException = Assert.Throws<ArgumentNullException>(() => new Testlet(testletId, items));
             
-            // assert
-            Assert.IsType<ArgumentNullException>(caughtException);
-        }
-
-        [Trait("category", "defencive")]
-        [Fact]
-        public void Throws_argument_null_exception_on_missed_testlet_id_and_items()
-        {
-            // arrange
-            string testletId = null;
-            List<Item> items = null;
-
-            // act
-            var caughtException = Assert.Throws<ArgumentNullException>(() => new Testlet(testletId, items));
-
             // assert
             Assert.IsType<ArgumentNullException>(caughtException);
         }
@@ -142,18 +139,19 @@ namespace Assessment.Domain.Tests
 
         [Trait("category", "validation")]
         [Fact]
-        public void Shuffled_compares_item_sets()
+        public void Shuffle_does_not_loose_items()
         {
             // arrange
-            var testletId = "id";
             var originalItems = ItemsBuilder.BuildValidItems();
-            var sut = new Testlet(testletId, originalItems);
+            var shufledItems = new List<Item>(originalItems);
 
-            var areEqual = sut.CompareItemSets(originalItems);
+            shufledItems.Shuffle();
+
+            var areEqual = CompareItemSets(originalItems, shufledItems);
             Assert.True(areEqual);
 
             originalItems[1] = new Item { ItemType = ItemType.Pretest };
-            areEqual = sut.CompareItemSets(originalItems);
+            areEqual = CompareItemSets(originalItems, shufledItems);
             Assert.False(areEqual);
         }
 
@@ -178,8 +176,8 @@ namespace Assessment.Domain.Tests
 
         [Trait("category", "randomization")]
         [Theory]
+        [InlineData(0, ItemType.Pretest)]
         [InlineData(1, ItemType.Pretest)]
-        [InlineData(2, ItemType.Pretest)]
         public void Nth_item_has_expected_type(int itemIndex, ItemType expectedItemType)
         {
             // arrange
@@ -189,7 +187,6 @@ namespace Assessment.Domain.Tests
             var randomizedItems = sut.Randomize();
 
             // assert
-            --itemIndex;
             var nthItem = randomizedItems[itemIndex];
             Assert.Equal(expectedItemType, nthItem.ItemType);
         }
